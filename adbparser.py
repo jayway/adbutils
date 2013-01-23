@@ -201,14 +201,17 @@ def get_no_failed_objects(test_objects):
 
 
 def write_to_file(filename, report, use_relative_path=True):
-    full_filename = os.getcwd() + os.sep + filename if use_relative_path else filename
+    if filename:
+        full_filename = os.getcwd() + os.sep + filename if use_relative_path else filename
 
-    out_file = open(full_filename, 'w')
+        out_file = open(full_filename, 'w')
 
-    try:
-        out_file.write(report)
-    except IOError:
-        logger.error('failed to write file to disk: ' + str(IOError.message))
-    finally:
-        logger.info('Wrote report to file: %s', full_filename)
-        out_file.close()
+        try:
+            out_file.write(report)
+        except IOError:
+            logger.error('failed to write file to disk: ' + str(IOError.message))
+        finally:
+            logger.info('Wrote report to file: %s', full_filename)
+            out_file.close()
+    else:
+        logger.error('A proper filename not provided')
