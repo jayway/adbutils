@@ -1,25 +1,15 @@
+#!/usr/bin/env python
+'''A Python module containing functionality for parsing and creating junit reports form adb test runners output.
 '''
-Copyright 2013 Jayway
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-'''
-
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
 import os
 import logging
 
-__author__ = 'Andreas Nilsson'
+__author__    = 'Andreas Nilsson'
+__email__     = 'andreas.nilsson@jayway.com'
+__copyright__ = "Copyright 2013, Jayway"
+__license__   = 'Apache 2.0'
 
 #Constants
 _COLON_CHAR  = ':'
@@ -45,9 +35,7 @@ logger.addHandler(ch)
 _process_error_words = ['INSTRUMENTATION_RESULT', 'INSTRUMENTATION_CODE']
 
 class TestObject:
-    '''
-    The parsed representation from the adb output of running an instrument.
-    '''
+    '''The parsed representation from the adb output of running an instrument.'''
     class_name = ''
 
     # Dict format: {method : (type, details)}
