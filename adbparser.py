@@ -1,6 +1,10 @@
 #!/usr/bin/env python
-'''A Python module containing functionality for parsing and creating junit reports form adb test runners output.
+
 '''
+A Python module containing functionality for parsing and creating junit reports form adb test runners output.
+Written for Python 2.6
+'''
+
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
 import os
@@ -35,7 +39,7 @@ logger.addHandler(ch)
 _process_error_words = ['INSTRUMENTATION_RESULT', 'INSTRUMENTATION_CODE']
 
 class TestObject:
-    '''The parsed representation from the adb output of running an instrument.'''
+    ''' The parsed representation from the adb output of running an instrument. '''
     class_name = ''
 
     # Dict format: {method : (type, details)}
@@ -214,11 +218,10 @@ def write_to_file(filename, report, use_relative_path=True):
 
         out_file = open(full_filename, 'w')
 
-        #noinspection PyCompatibility
         try:
             out_file.write(report)
-        except IOError:
-            logger.error('failed to write file to disk: ' + str(IOError.message))
+        except IOError as e:
+            logger.error('failed to write file to disk: ' + str(e.message))
         finally:
             logger.info('Wrote report to file: %s', full_filename)
             out_file.close()

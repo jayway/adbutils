@@ -1,5 +1,12 @@
+#!/usr/bin/env python
+
+"""
+A Python module containing functionality for communicating through ADB.
+Written for Python 2.6
+"""
+
 import logging
-import  subprocess
+import subprocess
 
 __author__    = 'Andreas Nilsson'
 __email__     = 'andreas.nilsson@jayway.com'
