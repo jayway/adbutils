@@ -121,55 +121,63 @@ def _parse_process_crash_error(line, next_line):
 
 
 def parse_adb_output(output):
-    lines = output.splitlines()
-    all_objects = []
-    test_obj = None
+    try:
+        logger.debug("ADB Output: %s", output)
+        lines = output.splitlines()
+        all_objects = []
+        test_obj = None
 
-    for i, line in enumerate(lines):
-        line = line.strip('\t').strip()
+        for i, line in enumerate(lines):
+            line = line.strip('\t').strip()
 
-        is_failure = line.startswith('Failure')
-        is_stacktrace = line.startswith('at')
-        is_type_of_fail_line = line.startswith('junit')
-        is_last_parse_line = 'Test results for' in line
+            is_failure = line.startswith('Failure')
+            is_stacktrace = line.startswith('at')
+            is_type_of_fail_line = line.startswith('junit')
+            is_last_parse_line = 'Test results for' in line
 
-        if is_last_parse_line:
-            break
-        elif is_failure:
-            if 'in' in line:
-                failed_method = line.split('in')[1].strip(" :")
-                test_obj.add_failed_method(failed_method)
-        elif is_type_of_fail_line:
-            split = line.split(_COLON_CHAR)
-            if len(split) > 1:
-                error_type = split[0]
-                error_details = line
+            if is_last_parse_line:
+                break
+            elif is_failure:
+                if 'in' in line:
+                    failed_method = line.split('in')[1].strip(" :")
+                    if failed_method:
+                        test_obj.add_failed_method(failed_method)
+            elif is_type_of_fail_line:
+                split = line.split(_COLON_CHAR)
+                if len(split) > 1:
+                    error_type = split[0]
+                    error_details = line
 
-                test_obj.add_error(error_type, error_details)
-        elif is_stacktrace:
-            pass
-        else:
-            test_obj = _parse_test_object_from_line(line)
-
-            if test_obj:
-                all_objects.append(test_obj)
-
-        if _is_line_process_crash(line):
-            next_line = None
-
-            try:
-                next_line = lines[i + 1]
-            except IndexError:
+                    if error_type:
+                        test_obj.add_error(error_type, error_details)
+            elif is_stacktrace:
                 pass
+            else:
+                test_obj = _parse_test_object_from_line(line)
 
-            error_type, error_details = _parse_process_crash_error(line, next_line)
+                if test_obj:
+                    all_objects.append(test_obj)
 
-            if error_type:
-                test_obj.add_error(error_type, error_details)
+            if _is_line_process_crash(line):
+                next_line = None
 
-    logger.info("Created %d test objects" % len(all_objects))
-    logger.info("Objects failed: %d" % get_no_failed_objects(all_objects))
-    return all_objects
+                try:
+                    next_line = lines[i + 1]
+                except IndexError:
+                    pass
+
+                error_type, error_details = _parse_process_crash_error(line, next_line)
+
+                if error_type:
+                    test_obj.add_error(error_type, error_details)
+
+        logger.info("Created %d test objects" % len(all_objects))
+        logger.info("Objects failed: %d" % get_no_failed_objects(all_objects))
+        return all_objects
+    except:
+        logger.error('Failed to parse adb output properly')
+        return []
+
 
 
 def parse_and_generate_xml(adb_output):
@@ -206,6 +214,7 @@ def write_to_file(filename, report, use_relative_path=True):
 
         out_file = open(full_filename, 'w')
 
+        #noinspection PyCompatibility
         try:
             out_file.write(report)
         except IOError:
@@ -215,3 +224,4 @@ def write_to_file(filename, report, use_relative_path=True):
             out_file.close()
     else:
         logger.error('A proper filename not provided')
+
