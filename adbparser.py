@@ -1,10 +1,6 @@
 #!/usr/bin/env python
-
+'''A Python module containing functionality for parsing and creating junit reports form adb test runners output.
 '''
-A Python module containing functionality for parsing and creating junit reports form adb test runners output.
-Written for Python 2.6
-'''
-
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
 import os
@@ -39,7 +35,7 @@ logger.addHandler(ch)
 _process_error_words = ['INSTRUMENTATION_RESULT', 'INSTRUMENTATION_CODE']
 
 class TestObject:
-    ''' The parsed representation from the adb output of running an instrument. '''
+    '''The parsed representation from the adb output of running an instrument.'''
     class_name = ''
 
     # Dict format: {method : (type, details)}
@@ -66,6 +62,7 @@ class TestObject:
     def add_failed_method(self, method_name):
         self._last_failed_method = method_name
         self.erroneous_methods[method_name] = (None, None)
+
 
 
     def has_failures(self):
@@ -106,6 +103,9 @@ def _parse_test_object_from_line(line):
         if class_line.count(_DOT_CHAR) > 2:
             test_obj = TestObject(class_line)
 
+
+    if not test_obj:
+        logger.error('Could not parse object from line: %s', line)
     return test_obj
 
 
@@ -134,6 +134,9 @@ def parse_adb_output(output):
         for i, line in enumerate(lines):
             line = line.strip('\t').strip()
 
+            if not line:
+                continue
+
             is_failure = line.startswith('Failure')
             is_stacktrace = line.startswith('at')
             is_type_of_fail_line = line.startswith('junit')
@@ -144,7 +147,7 @@ def parse_adb_output(output):
             elif is_failure:
                 if 'in' in line:
                     failed_method = line.split('in')[1].strip(" :")
-                    if failed_method:
+                    if failed_method and test_obj:
                         test_obj.add_failed_method(failed_method)
             elif is_type_of_fail_line:
                 split = line.split(_COLON_CHAR)
@@ -161,6 +164,8 @@ def parse_adb_output(output):
 
                 if test_obj:
                     all_objects.append(test_obj)
+                else:
+                    logger.error('Failed to parse object from line "%s', line)
 
             if _is_line_process_crash(line):
                 next_line = None
@@ -178,7 +183,8 @@ def parse_adb_output(output):
         logger.info("Created %d test objects" % len(all_objects))
         logger.info("Objects failed: %d" % get_no_failed_objects(all_objects))
         return all_objects
-    except:
+    except Exception as e:
+        logger.error(e.message)
         logger.error('Failed to parse adb output properly')
         return []
 
@@ -218,10 +224,11 @@ def write_to_file(filename, report, use_relative_path=True):
 
         out_file = open(full_filename, 'w')
 
+        #noinspection PyCompatibility
         try:
             out_file.write(report)
-        except IOError as e:
-            logger.error('failed to write file to disk: ' + str(e.message))
+        except IOError:
+            logger.error('failed to write file to disk: ' + str(IOError.message))
         finally:
             logger.info('Wrote report to file: %s', full_filename)
             out_file.close()
