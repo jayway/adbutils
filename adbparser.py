@@ -165,7 +165,7 @@ def parse_adb_output(output):
                     test_obj = new_test_obj
                     all_objects.append(test_obj)
                 else:
-                    logger.error('Failed to parse object from line "%s', line)
+                    logger.debug('Failed to parse object from line "%s', line)
 
             if _is_line_process_crash(line):
                 next_line = None
