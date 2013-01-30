@@ -64,7 +64,6 @@ class TestObject:
         self.erroneous_methods[method_name] = (None, None)
 
 
-
     def has_failures(self):
         return True if self.erroneous_methods else False
 
@@ -160,9 +159,10 @@ def parse_adb_output(output):
             elif is_stacktrace:
                 pass
             else:
-                test_obj = _parse_test_object_from_line(line)
+                new_test_obj = _parse_test_object_from_line(line)
 
-                if test_obj:
+                if new_test_obj:
+                    test_obj = new_test_obj
                     all_objects.append(test_obj)
                 else:
                     logger.error('Failed to parse object from line "%s', line)
