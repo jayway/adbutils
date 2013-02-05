@@ -34,7 +34,7 @@ logger.addHandler(ch)
 
 _process_error_words = ['INSTRUMENTATION_RESULT', 'INSTRUMENTATION_CODE']
 
-class TestObject:
+class TestObject(object):
     '''The parsed representation from the adb output of running an instrument.'''
     class_name = ''
 
@@ -200,7 +200,7 @@ def generate_junit_xml_report(test_objects, success_message='Successful'):
     for obj in test_objects:
         if obj.has_failures():
             for method_name in obj.erroneous_methods:
-                type, details = obj.get_error(method_name)
+                type, details = obj.get_exception(method_name)
 
                 test_case = ET.SubElement(test_suite, 'testcase', {'classname': obj.class_name, 'name': method_name})
 
