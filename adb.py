@@ -39,6 +39,10 @@ logger.addHandler(ch)
 _adb_bin = '/Users/Enighma/android-sdk-macosx/platform-tools/adb'
 
 
+#Constants
+REBOOT_BOOTLOADER = 'bootloader'
+REBOOT_RECOVERY   = 'recovery'
+
 
 class AdbDevice(object):
     TYPE_EMULATOR = 'TYPE_EMULATOR'
@@ -84,6 +88,12 @@ class AdbDevice(object):
 
     def get_device_type(self):
         return self.type
+
+    def get_meta(self):
+        return self.meta
+
+    def get_id(self):
+        return self.id
 
 
 class ErrorInfo(object):
@@ -253,12 +263,9 @@ def set_adb_path(path):
     _adb_bin = path
 
 
-
 def remount_sys_part(device):
     return _run_on_specific_device('remount', device)
 
-REBOOT_BOOTLOADER = 'bootloader'
-REBOOT_RECOVERY   = 'recovery'
 
 def reboot(device, reboot_into=None, do_wait_for_device=False):
     cmd = 'reboot'
@@ -282,13 +289,27 @@ def pull(remote, local=None, device=None):
     if local:
         cmd += ' ' + local
 
-    output =  _run_on_specific_device(cmd, device)
+    return _run_on_specific_device(cmd, device)
+
+
+def connect(ip, port=5555):
+    return 'unable to connect' not in run_adb_command('connect %s:%d' % (ip,port))
+
+
+def disconnect(ip='', port=5555):
+    return run_adb_command('disconnect %s:%d' % (ip,port))
+
 
 if __name__ == '__main__':
 
-    devices = get_adb_devics()
-    dev = devices[0]
+    logger.info('Connect: %s', disconnect('192.168.2.2'))
+    logger.info('Connect: %s', connect('192.168.2.2'))
 
+
+    # devices = get_adb_devics()
+    # if devices:
+    #     dev = devices[0]
+    #
     # for d in devices:
     #     print str(d)
 
@@ -311,21 +332,16 @@ if __name__ == '__main__':
 
     # reboot(dev, reboot_into=REBOOT_BOOTLOADER , do_wait_for_device=True)
 
-    local  = '../tests/test.txt'
-    remote = '/storage/sdcard1/test.txt'
+    # local  = '../tests/test.txt'
+    # remote = '/storage/sdcard1/test.txt'
     # remote = '/moo/test.txt'
     # print os.listdir(local)
     # logger.info(push(local, remote, dev))
-    logger.info(pull(remote, device=dev))
-    if get_error_info():
-        print 'found error'
-    else:
-        print 'found no error'
+    # logger.info(pull(remote, device=dev))
+    # if get_error_info():
+    #     print 'found error'
+    # else:
+    #     print 'found no error'
 
 
-def connect(ip):
-    raise NotImplementedError
 
-
-def disconnect(ip):
-    raise NotImplementedError

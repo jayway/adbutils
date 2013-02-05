@@ -200,7 +200,7 @@ def generate_junit_xml_report(test_objects, success_message='Successful'):
     for obj in test_objects:
         if obj.has_failures():
             for method_name in obj.erroneous_methods:
-                type, details = obj.get_exception(method_name)
+                type, details = obj.get_error(method_name)
 
                 test_case = ET.SubElement(test_suite, 'testcase', {'classname': obj.class_name, 'name': method_name})
 
